@@ -14,28 +14,29 @@ from xml.etree import ElementTree as ET
 
 import numpy as np
 import pandas as pd
-from flask import Flask, jsonify, render_template, request
+from flask import Flask, jsonify, render_template, request, send_from_directory
 
 
 BASE_DIR = Path(__file__).resolve().parent
 DATA_DIR = BASE_DIR / "data"
+PUBLIC_DIR = BASE_DIR / "public"
 DEFAULT_EXTERNAL_DIR = Path(r"D:\5.Mundial 2026")
 PCA_SHEET_NAME = "PCA y Clustering"
 
-ATASET_CANDIDATES = [
+PREDICTOR_CANDIDATES = [
+    os.getenv("MUNDIAL_PREDICTOR_PATH"),
+    BASE_DIR / "predictor_mundial2026.py",
+    DEFAULT_EXTERNAL_DIR / "predictor_mundial2026.py",
+]
+
+DATASET_CANDIDATES = [
     os.getenv("MUNDIAL_DATASET_PATH"),
     DATA_DIR / "mundial2026_ML_dataset.xlsx",
     BASE_DIR / "mundial2026_ML_dataset.xlsx",
     DEFAULT_EXTERNAL_DIR / "mundial2026_ML_dataset.xlsx",
 ]
 
-DATASET_CANDIDATES = [
-    os.getenv("MUNDIAL_DATASET_PATH"),
-    BASE_DIR / "mundial2026_ML_dataset.xlsx",
-    DEFAULT_EXTERNAL_DIR / "mundial2026_ML_dataset.xlsx",
-]
-
-app = Flask(__name__)
+app = Flask(__name__, static_folder=None)
 
 
 DISPLAY_NAMES_ES = {
@@ -828,6 +829,16 @@ def index():
     )
 
 
+@app.get("/css/<path:filename>")
+def public_css(filename: str):
+    return send_from_directory(PUBLIC_DIR / "css", filename)
+
+
+@app.get("/js/<path:filename>")
+def public_js(filename: str):
+    return send_from_directory(PUBLIC_DIR / "js", filename)
+
+
 @app.get("/api/teams")
 def api_teams():
     context = get_model_context()
@@ -897,5 +908,8 @@ def api_predict():
 
 
 if __name__ == "__main__":
-    debug_mode = os.getenv("FLASK_DEBUG", "1").lower() not in {"0", "false", "no"}
+    debug_mode = (
+        not os.getenv("VERCEL")
+        and os.getenv("FLASK_DEBUG", "1").lower() not in {"0", "false", "no"}
+    )
     app.run(debug=debug_mode, use_reloader=False)
