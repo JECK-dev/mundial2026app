@@ -18,13 +18,15 @@ from flask import Flask, jsonify, render_template, request
 
 
 BASE_DIR = Path(__file__).resolve().parent
+DATA_DIR = BASE_DIR / "data"
 DEFAULT_EXTERNAL_DIR = Path(r"D:\5.Mundial 2026")
 PCA_SHEET_NAME = "PCA y Clustering"
 
-PREDICTOR_CANDIDATES = [
-    os.getenv("MUNDIAL_PREDICTOR_PATH"),
-    BASE_DIR / "predictor_mundial2026.py",
-    DEFAULT_EXTERNAL_DIR / "predictor_mundial2026.py",
+ATASET_CANDIDATES = [
+    os.getenv("MUNDIAL_DATASET_PATH"),
+    DATA_DIR / "mundial2026_ML_dataset.xlsx",
+    BASE_DIR / "mundial2026_ML_dataset.xlsx",
+    DEFAULT_EXTERNAL_DIR / "mundial2026_ML_dataset.xlsx",
 ]
 
 DATASET_CANDIDATES = [
